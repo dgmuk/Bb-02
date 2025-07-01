@@ -1,0 +1,891 @@
+/* CSS переменные для цветовой схемы */
+:root {
+    --primary-color: #1a365d;
+    --secondary-color: #3182ce;
+    --accent-color: #ed8936;
+    --background-color: #f7fafc;
+    --surface-color: #ffffff;
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Сброс стилей и базовые настройки */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background-color: var(--background-color);
+    overflow-x: hidden;
+}
+
+/* Контейнер приложения */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Боковая навигация */
+.sidebar {
+    width: 280px;
+    background: var(--gradient-primary);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow-lg);
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #fff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-menu li {
+    margin: 0.25rem 0;
+}
+
+.nav-link {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-link:hover::before {
+    left: 100%;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--accent-color);
+    transform: translateX(5px);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+}
+
+/* Основной контент */
+.main-content {
+    flex: 1;
+    margin-left: 280px;
+    padding: 2rem;
+    transition: margin-left 0.3s ease;
+}
+
+/* Секции контента */
+.content-section {
+    display: none;
+    animation: fadeInUp 0.6s ease;
+}
+
+.content-section.active {
+    display: block;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Заголовки секций */
+.section-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.section-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Сетка карточек */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* Информационные карточки */
+.info-card {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover::before {
+    transform: scaleX(1);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.info-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Визуализация цикла */
+.cycle-visualization {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 3rem;
+}
+
+.cycle-visualization h3 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    color: var(--primary-color);
+}
+
+.cycle-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cycle-step {
+    background: var(--gradient-accent);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    text-align: center;
+    min-width: 180px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.cycle-step:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.cycle-step h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.cycle-step p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.cycle-arrow {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+/* Табы */
+.types-tabs, .examples-tabs {
+    margin-bottom: 3rem;
+}
+
+.tab-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 1rem 1.5rem;
+    background: var(--surface-color);
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.tab-btn:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow-md);
+}
+
+.tab-content {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+    animation: fadeInUp 0.4s ease;
+}
+
+.tab-panel h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.tab-panel p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+/* Таблицы */
+.table-container {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface-color);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.data-table th {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(49, 130, 206, 0.05);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Таблица сравнения */
+.comparison-table {
+    margin-top: 3rem;
+}
+
+.comparison-table h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+}
+
+.data-table.comparison th:first-child {
+    background: var(--gradient-secondary);
+}
+
+.data-table.comparison td:first-child {
+    font-weight: 600;
+    background: rgba(240, 147, 251, 0.1);
+    color: var(--primary-color);
+}
+
+/* Структура периодизации */
+.structure-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.cycle-level {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    border-left: 5px solid var(--secondary-color);
+    transition: all 0.3s ease;
+}
+
+.cycle-level:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cycle-level[data-level="macro"] {
+    border-left-color: #e53e3e;
+}
+
+.cycle-level[data-level="meso"] {
+    border-left-color: #dd6b20;
+}
+
+.cycle-level[data-level="micro"] {
+    border-left-color: #38a169;
+}
+
+.cycle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cycle-header h3 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.duration {
+    background: var(--gradient-accent);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.cycle-phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.phase {
+    background: rgba(49, 130, 206, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.phase:hover {
+    background: rgba(49, 130, 206, 0.2);
+    transform: translateY(-2px);
+}
+
+.phase h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.phase span {
+    display: block;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.microcycle-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.micro-type {
+    background: var(--gradient-secondary);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.micro-type:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.micro-type h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Пошаговая инструкция */
+.instruction-steps {
+    display: grid;
+    gap: 2rem;
+}
+
+.step-card {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.step-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.step-card .step-number {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.step-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.step-details ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.step-details li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.step-details li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* Калькулятор */
+.calculator-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.calculator-form {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--surface-color);
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--gradient-secondary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.calculator-results {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.calculator-results h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+/* Визуализация прогресса */
+.progress-visualization {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(49, 130, 206, 0.05);
+    border-radius: 0.5rem;
+}
+
+.chart-container {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(49, 130, 206, 0.05);
+    border-radius: 0.5rem;
+}
+
+/* Источники */
+.sources-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.source-item {
+    background: var(--surface-color);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--secondary-color);
+    transition: all 0.3s ease;
+}
+
+.source-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+}
+
+.source-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.source-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .calculator-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .cycle-diagram {
+        flex-direction: column;
+    }
+    
+    .cycle-arrow {
+        transform: rotate(90deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 100%;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .sidebar-toggle {
+        display: block;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .section-header h1 {
+        font-size: 2rem;
+    }
+    
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .tab-buttons {
+        flex-direction: column;
+    }
+    
+    .step-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cycle-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .table-container {
+        font-size: 0.9rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .info-card {
+        padding: 1.5rem;
+    }
+    
+    .cycle-step {
+        min-width: 150px;
+        padding: 1rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Анимации загрузки */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 2s infinite;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
