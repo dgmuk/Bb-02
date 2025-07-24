@@ -1,351 +1,539 @@
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('main-container');
-        const copyButton = document.getElementById('copy-btn');
-        const form = document.getElementById('medicalHistoryForm');
-        const copyContainer = document.getElementById('copy-container');
-        const reportOutput = document.getElementById('report-output');
-        const allInputs = () => form.querySelectorAll('input, select, textarea');
-        const STORAGE_KEY = 'medicalHistoryState';
-
-        // --- Данные для генерации ---
-        const conditions = [
-            {id: 'cond_1', text: '1. Аллергия'}, {id: 'cond_11', text: '11. Язва'}, {id: 'cond_21', text: '21. Потеря сознания'},
-            {id: 'cond_2', text: '2. Потеря слуха'}, {id: 'cond_12', text: '12. Сердечный приступ'}, {id: 'cond_22', text: '22. Эпилепсия'},
-            {id: 'cond_3', text: '3. Астма'}, {id: 'cond_13', text: '13. Шум в сердце'}, {id: 'cond_23', text: '23. Конвульсии'},
-            {id: 'cond_4', text: '4. Заболевания почек'}, {id: 'cond_14', text: '14. Положительный стресс-тест'}, {id: 'cond_24', text: '24. Инсульт'},
-            {id: 'cond_5', text: '5. Простатит'}, {id: 'cond_15', text: '15. Патологии сердечного клапана'}, {id: 'cond_25', text: '25. Диабет'},
-            {id: 'cond_6', text: '6. Колит'}, {id: 'cond_16', text: '16. Ангина'}, {id: 'cond_26', text: '26. Заболевания щитовидной железы'},
-            {id: 'cond_7', text: '7. Гепатит'}, {id: 'cond_17', text: '17. Сердечная недостаточность'}, {id: 'cond_27', text: '27. Анемия'},
-            {id: 'cond_8', text: '8. Заболевания печени'}, {id: 'cond_18', text: '18. Высокий холестерин'}, {id: 'cond_28', text: '28. Экзема'},
-            {id: 'cond_9', text: '9. Повышенные ферменты печени'}, {id: 'cond_19', text: '19. Высокое кровяное давление'}, {id: 'cond_29', text: '29. Онкология'},
-            {id: 'cond_10', text: '10. Панкреатит'}, {id: 'cond_20', text: '20. Артрит/Ревматизм'}, {id: 'cond_30', text: '30. Апноэ'}
-        ];
-        const symptoms = [
-            {id: 'symp_31', text: '31. Нарушение зрения ночью'}, {id: 'symp_40', text: '40. Одышка'}, {id: 'symp_45', text: '45. Болезнь мочевого пузыря'},
-            {id: 'symp_32', text: '32. Изменения зрения'}, {id: 'symp_41', text: '41. Хронический кашель'}, {id: 'symp_46', text: '46. Кровь в моче'},
-            {id: 'symp_33', text: '33. Размытое зрение'}, {id: 'symp_42', text: '42. Мокрота с кровью'}, {id: 'symp_47', text: '47. Нерегулярное кровотечение'},
-            {id: 'symp_34', text: '34. Кровоточивость десен'}, {id: 'symp_43', text: '43. Стеснение в груди'}, {id: 'symp_48', text: '48. Текущая беременность'},
-            {id: 'symp_35', text: '35. Кровотечения из носа'}, {id: 'symp_44', text: '44. Сопение'}, {id: 'symp_49', text: '49. Затруднение мочеиспускания'},
-            {id: 'symp_36', text: '36. Частый гайморит'}, {id: 'symp_53', text: '53. Рвота кровью'}, {id: 'symp_50', text: '50. Мочеиспускание >7 раз/день'},
-            {id: 'symp_37', text: '37. Охриплость'}, {id: 'symp_54', text: '54. Длительный понос'}, {id: 'symp_51', text: '51. Частое/болезненное мочеиспускание'},
-            {id: 'symp_38', text: '38. Шум в ушах'}, {id: 'symp_55', text: '55. Длительный запор'}, {id: 'symp_52', text: '52. Половая дисфункция'},
-            {id: 'symp_39', text: '39. Боль в ушах'}, {id: 'symp_56', text: '56. Частая боль в животе'}, {id: 'symp_63', text: '63. Обморок'},
-            {id: 'symp_57', text: '57. Частая рвота'}, {id: 'symp_64', text: '64. Головокружение'}, {id: 'symp_71', text: '71. Сильное/нерегулярное сердцебиение'},
-            {id: 'symp_58', text: '58. Частая изжога'}, {id: 'symp_65', text: '65. Частые головные боли'}, {id: 'symp_72', text: '72. Боль в груди'},
-            {id: 'symp_59', text: '59. Кал с кровью'}, {id: 'symp_66', text: '66. Тремор'}, {id: 'symp_73', text: '73. Высокий холестерин'},
-            {id: 'symp_60', text: '60. Геморрой'}, {id: 'symp_67', text: '67. Потеря памяти'}, {id: 'symp_74', text: '74. Потение ступней'},
-            {id: 'symp_61', text: '61. Проблемы с глотанием'}, {id: 'symp_68', text: '68. Потеря координации'}, {id: 'symp_75', text: '75. Боль в ногах при ходьбе'},
-            {id: 'symp_62', text: '62. Грыжа в ЖКТ'}, {id: 'symp_69', text: '69. Трудность концентрации'}, {id: 'symp_76', text: '76. Варикозные вены'},
-            {id: 'symp_77', text: '77. Проблемы/Боль в спине'}, {id: 'symp_70', text: '70. Онемение/Покалывание'}, {id: 'symp_81', text: '81. Легко получаемые синяки'},
-            {id: 'symp_78', text: '78. Проблемы/Боль в шее'}, {id: 'symp_82', text: '82. Увеличенные гланды'}, {id: 'symp_86', text: '86. Ночная потливость'},
-            {id: 'symp_79', text: '79. Травма/Боль в суставе'}, {id: 'symp_83', text: '83. Сыпь'}, {id: 'symp_87', text: '87. Беспричинная потеря веса'},
-            {id: 'symp_80', text: '80. Туннельный синдром'}, {id: 'symp_84', text: '84. Необъяснимые шишки'}, {id: 'symp_88', text: '88. Храп'},
-            {id: 'symp_85', text: '85. Хроническая усталость'}, {id: 'symp_89', text: '89. Проблемы со сном'}, {id: 'symp_90', text: '90. Низкий уровень сахара'}
-        ];
-        
-        // --- Генерация динамических полей ---
-        const generateCheckboxes = (containerId, items) => {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            let html = '';
-            items.forEach(item => {
-                html += `<label class="flex items-center cursor-pointer"><input type="checkbox" id="${item.id}" name="${item.id}" class="form-checkbox mr-3"><span class="flex-1 text-sm">${item.text}</span></label>`;
-            });
-            container.innerHTML = html;
-        };
-        
-        const generateLifestyleQuestions = () => {
-            const container = document.getElementById('lifestyle-questions');
-            if (!container) return;
-            const questionsHTML = `
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">91. Принимаете ли вы какие-либо лекарства по рецепту или без рецепта?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="medication" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="medication" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">92. Имели ли вы какие-либо хирургические вмешательства за последние 10 лет?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="surgery" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="surgery" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">93. У кого-нибудь в вашей семье развилась болезнь сердца в возрасте до 60 лет?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="family_heart_disease" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="family_heart_disease" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">94. Есть ли какие-либо болезни в вашей семье?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="family_illness" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="family_illness" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">95. Есть ли у вас в настоящее время простуда / кашель?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="cold_cough" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="cold_cough" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">96. Были ли вы когда-либо госпитализированы?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="hospitalized" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="hospitalized" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">97. Стоите ли вы в данный момент времени на учете у какого-либо врача?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="doctor_care" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="doctor_care" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">98. У вас были изменения в размере или цвете родинки?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="mole_change" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="mole_change" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">99. У вас были какие-либо беспокойства относительно вашего здоровья?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="health_concerns" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="health_concerns" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">100. Вы курите в настоящий момент?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="smoking_now" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="smoking_now" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                    <div class="mt-2 space-y-2 pl-6"><label for="cigarettes_per_day" class="text-sm">А. Сколько сигарет в день?</label><input type="text" id="cigarettes_per_day" name="cigarettes_per_day" class="form-input"><label for="smoking_duration_now" class="text-sm">Б. Как долго вы курите?</label><input type="text" id="smoking_duration_now" name="smoking_duration_now" class="form-input"></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">101. Вы курили когда-либо в своей жизни?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="smoked_ever" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="smoked_ever" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                    <div class="mt-2 space-y-2 pl-6"><label for="smoking_duration_past" class="text-sm">А. Сколько лет курили:</label><input type="text" id="smoking_duration_past" name="smoking_duration_past" class="form-input"><label for="cigarettes_per_day_past" class="text-sm">Б. Сколько сигарет в день?</label><input type="text" id="cigarettes_per_day_past" name="cigarettes_per_day_past" class="form-input"><label for="quit_date" class="text-sm">В. Когда вы бросили курить?</label><input type="text" id="quit_date" name="quit_date" class="form-input"></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">102. Использовали ли вы другие формы табака или никотина за последние 15 лет?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="other_tobacco" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="other_tobacco" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">103. Пьете ли вы пиво или другие слабоалкогольные напитки?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="alcohol" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="alcohol" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                    <div class="mt-2 pl-6"><label for="alcohol_amount" class="text-sm">Пью <input type="text" id="alcohol_amount" name="alcohol_amount" class="form-input inline-block w-20 mx-2"> л в неделю по <input type="text" name="alcohol_days" id="alcohol_days" class="form-input inline-block w-32 mx-2"></label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">104. Вы считаете, что у вас неудовлетворительное состояние кожи?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="skin_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="skin_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">105. Вы считаете, что у вас неудовлетворительное состояние ногтей?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="nail_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="nail_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">106. Вы считаете, что у вас неудовлетворительное состояние волос?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="hair_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="hair_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">107. Когда вы делали последнее исследование?</label>
-                    <div class="mt-2 space-y-2 pl-6">
-                        <div class="flex items-center gap-2 flex-wrap"><span>Холестерин:</span> <input type="date" name="cholesterol_date" id="cholesterol_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="cholesterol_result" id="cholesterol_result" class="form-input w-32"></div>
-                        <div class="flex items-center gap-2 flex-wrap"><span>Гематокрит:</span> <input type="date" name="hematocrit_date" id="hematocrit_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="hematocrit_result" id="hematocrit_result" class="form-input w-32"></div>
-                        <div class="flex items-center gap-2 flex-wrap"><span>Гемоглобин:</span> <input type="date" name="hemoglobin_date" id="hemoglobin_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="hemoglobin_result" id="hemoglobin_result" class="form-input w-32"></div>
-                        <div class="flex items-center gap-2 flex-wrap"><span>Глюкоза:</span> <input type="date" name="glucose_date" id="glucose_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="glucose_result" id="glucose_result" class="form-input w-32"></div>
-                        <div class="flex items-center gap-2 flex-wrap"><span>Инсулин:</span> <input type="date" name="insulin_date" id="insulin_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="insulin_result" id="insulin_result" class="form-input w-32"></div>
-                    </div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">108. Во время еды у вас бывают тяжесть, вздутие, изжога?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="digestion_issues" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="digestion_issues" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">109. Ваша рабочая деятельность связана с химией, шумом или пылью?</label>
-                    <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="work_hazards" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="work_hazards" value="Нет" class="form-radio mr-2"> Нет</label></div>
-                </div>
-                <div class="question-group">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">110. Ваш текущий рацион характеризуется как:</label>
-                    <div class="flex flex-wrap gap-4"><label class="flex items-center"><input type="radio" name="diet_type" value="Низкожировой" class="form-radio mr-2"> Низкожировой</label><label class="flex items-center"><input type="radio" name="diet_type" value="Низкоуглеводный" class="form-radio mr-2"> Низкоуглеводный</label><label class="flex items-center"><input type="radio" name="diet_type" value="Высокобелковый" class="form-radio mr-2"> Высокобелковый</label><label class="flex items-center"><input type="radio" name="diet_type" value="Вегетарианский" class="form-radio mr-2"> Вегетарианский</label><label class="flex items-center"><input type="radio" name="diet_type" value="Нет специфики" class="form-radio mr-2"> Нет специфики</label></div>
-                </div>
-            `;
-            container.innerHTML = questionsHTML;
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета медицинской истории</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
         
-        function generateDetailsFields() {
-            const container = document.getElementById('details-container');
-            let html = '<label class="block text-sm font-medium text-gray-300 mb-2">Детализация ответов "Да":</label>';
-            for(let i = 1; i <= 10; i++) {
-                html += `
-                    <div class="grid grid-cols-12 gap-2 items-center">
-                        <div class="col-span-3">
-                            <input type="number" name="detail_q_${i}" id="detail_q_${i}" min="1" max="110" placeholder="№" class="form-input p-2 text-center">
+        /* Исправление для Google Sites */
+        html, body {
+            height: auto !important;
+            min-height: 1px !important;
+            overflow: visible !important; 
+        }
+
+        /* Анимация для плавного появления блоков */
+        .fade-in-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Стилизация инпутов, селектов, текстовых полей */
+        .form-input, .form-select, .form-textarea {
+            background-color: #374151; border: 1px solid #4b5563;
+            border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%;
+            color: #d1d5db; transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Стилизация чекбоксов и радио-кнопок */
+        .form-checkbox, .form-radio {
+            appearance: none; -webkit-appearance: none;
+            width: 1.25rem; height: 1.25rem;
+            border: 2px solid #4b5563;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+        .form-radio {
+            border-radius: 50%;
+        }
+        .form-checkbox:checked, .form-radio:checked {
+            background-color: #3b82f6; /* blue-500 */
+            border-color: #3b82f6;
+        }
+        .form-checkbox:checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .form-radio:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.6rem; height: 0.6rem;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        /* Анимация мерцания для кнопок */
+        .shimmer-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: translateX(-150%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-150%); }
+            50% { transform: translateX(250%); }
+            100% { transform: translateX(250%); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="main-container" class="container mx-auto max-w-4xl p-4 sm:p-8">
+        
+        <header class="text-center mb-10 fade-in-item">
+            <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight">
+                Анкета медицинской истории и текущего состояния
+            </h1>
+        </header>
+        
+        <div class="bg-gray-800 rounded-2xl p-6 mb-10 fade-in-item text-gray-400 space-y-3" style="animation-delay: 100ms;">
+            <p>Для того, чтобы вы получили выгоду от этой программы, рекомендуем вам отвечать на все следующие вопросы. Если вы чувствуете себя неловко из-за ответа на конкретный вопрос, то вы можете оставить его незаполненным.</p>
+            <p class="font-semibold text-gray-300">Пожалуйста, объясните все ответы, на которые вы ответили «Да» в конце этой анкеты.</p>
+        </div>
+
+        <form id="medicalHistoryForm" class="space-y-8">
+            
+            <div class="bg-gray-800 rounded-2xl shadow-lg p-6 fade-in-item" style="animation-delay: 200ms;">
+                <h2 class="text-2xl font-bold text-white mb-6 border-b-2 border-blue-500 pb-3">Общая информация</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label for="fullName" class="block text-sm font-medium text-gray-300 mb-2">ФИО:</label><input type="text" id="fullName" name="fullName" class="form-input"></div>
+                    <div><label for="date" class="block text-sm font-medium text-gray-300 mb-2">Дата:</label><input type="date" id="date" name="date" class="form-input"></div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl shadow-lg p-6 fade-in-item" style="animation-delay: 300ms;">
+                <h2 class="text-2xl font-bold text-white mb-4">Персональная медицинская история</h2>
+                <p class="text-gray-400 mb-4">Вы когда-либо имели какие-либо из следующих состояний здоровья?</p>
+                <div id="conditions-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+                    </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl shadow-lg p-6 fade-in-item" style="animation-delay: 400ms;">
+                <h2 class="text-2xl font-bold text-white mb-4">Обзор симптомов</h2>
+                <p class="text-gray-400 mb-4">Имеете ли вы в настоящее время или имели ли вы в недавнее время (в течение года) какой-либо из ниже представленных симптомов?</p>
+                <div id="symptoms-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
+                    </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl shadow-lg p-6 fade-in-item" style="animation-delay: 500ms;">
+                 <h2 class="text-2xl font-bold text-white mb-6">Дополнительные вопросы о здоровье и стиле жизни</h2>
+                 <div id="lifestyle-questions" class="space-y-6">
+                      </div>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl shadow-lg p-6 fade-in-item" style="animation-delay: 600ms;">
+                <h2 class="text-2xl font-bold text-white mb-4">Пожалуйста, объясните все ответы, на которые вы ответили «Да».</h2>
+                <p class="text-gray-400 mb-4">Укажите номер вопроса и добавьте более подробную информацию.</p>
+                <div id="details-container" class="space-y-3">
+                    </div>
+                 <div class="mt-6">
+                     <label for="explanations_extra" class="block text-sm font-medium text-gray-300 mb-2">Дополнительные пояснения (если необходимо):</label>
+                     <textarea id="explanations_extra" name="explanations_extra" class="form-textarea" placeholder="Общие пояснения к ответам 'Да', не вошедшие в таблицу..."></textarea>
+                 </div>
+            </div>
+
+        </form>
+        
+        <div class="mt-10 text-center fade-in-item" style="animation-delay: 700ms;">
+            <button id="copy-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 shimmer-btn">
+                Сформировать и скопировать ответы
+            </button>
+        </div>
+        
+        <div id="copy-container" class="hidden mt-4 fade-in-item">
+            <label for="report-output" class="block text-sm font-medium text-gray-300 mb-2">Ваш отформатированный отчет готов. Нажмите Ctrl+C (или Cmd+C), чтобы скопировать:</label>
+            <textarea id="report-output" readonly class="form-textarea w-full h-64"></textarea>
+        </div>
+
+
+        <footer class="text-center mt-12 border-t border-gray-700 pt-6">
+            <p class="text-sm text-gray-500">&copy; 2025 г. Все права защищены. Специально для проекта Body balance.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('main-container');
+            const copyButton = document.getElementById('copy-btn');
+            const form = document.getElementById('medicalHistoryForm');
+            const copyContainer = document.getElementById('copy-container');
+            const reportOutput = document.getElementById('report-output');
+            const allInputs = () => form.querySelectorAll('input, select, textarea');
+            const STORAGE_KEY = 'medicalHistoryState';
+    
+            // --- Данные для генерации ---
+            const conditions = [
+                {id: 'cond_1', text: '1. Аллергия'}, {id: 'cond_11', text: '11. Язва'}, {id: 'cond_21', text: '21. Потеря сознания'},
+                {id: 'cond_2', text: '2. Потеря слуха'}, {id: 'cond_12', text: '12. Сердечный приступ'}, {id: 'cond_22', text: '22. Эпилепсия'},
+                {id: 'cond_3', text: '3. Астма'}, {id: 'cond_13', text: '13. Шум в сердце'}, {id: 'cond_23', text: '23. Конвульсии'},
+                {id: 'cond_4', text: '4. Заболевания почек'}, {id: 'cond_14', text: '14. Положительный стресс-тест'}, {id: 'cond_24', text: '24. Инсульт'},
+                {id: 'cond_5', text: '5. Простатит'}, {id: 'cond_15', text: '15. Патологии сердечного клапана'}, {id: 'cond_25', text: '25. Диабет'},
+                {id: 'cond_6', text: '6. Колит'}, {id: 'cond_16', text: '16. Ангина'}, {id: 'cond_26', text: '26. Заболевания щитовидной железы'},
+                {id: 'cond_7', text: '7. Гепатит'}, {id: 'cond_17', text: '17. Сердечная недостаточность'}, {id: 'cond_27', text: '27. Анемия'},
+                {id: 'cond_8', text: '8. Заболевания печени'}, {id: 'cond_18', text: '18. Высокий холестерин'}, {id: 'cond_28', text: '28. Экзема'},
+                {id: 'cond_9', text: '9. Повышенные ферменты печени'}, {id: 'cond_19', text: '19. Высокое кровяное давление'}, {id: 'cond_29', text: '29. Онкология'},
+                {id: 'cond_10', text: '10. Панкреатит'}, {id: 'cond_20', text: '20. Артрит/Ревматизм'}, {id: 'cond_30', text: '30. Апноэ'}
+            ];
+            const symptoms = [
+                {id: 'symp_31', text: '31. Нарушение зрения ночью'}, {id: 'symp_40', text: '40. Одышка'}, {id: 'symp_45', text: '45. Болезнь мочевого пузыря'},
+                {id: 'symp_32', text: '32. Изменения зрения'}, {id: 'symp_41', text: '41. Хронический кашель'}, {id: 'symp_46', text: '46. Кровь в моче'},
+                {id: 'symp_33', text: '33. Размытое зрение'}, {id: 'symp_42', text: '42. Мокрота с кровью'}, {id: 'symp_47', text: '47. Нерегулярное кровотечение'},
+                {id: 'symp_34', text: '34. Кровоточивость десен'}, {id: 'symp_43', text: '43. Стеснение в груди'}, {id: 'symp_48', text: '48. Текущая беременность'},
+                {id: 'symp_35', text: '35. Кровотечения из носа'}, {id: 'symp_44', text: '44. Сопение'}, {id: 'symp_49', text: '49. Затруднение мочеиспускания'},
+                {id: 'symp_36', text: '36. Частый гайморит'}, {id: 'symp_53', text: '53. Рвота кровью'}, {id: 'symp_50', text: '50. Мочеиспускание >7 раз/день'},
+                {id: 'symp_37', text: '37. Охриплость'}, {id: 'symp_54', text: '54. Длительный понос'}, {id: 'symp_51', text: '51. Частое/болезненное мочеиспускание'},
+                {id: 'symp_38', text: '38. Шум в ушах'}, {id: 'symp_55', text: '55. Длительный запор'}, {id: 'symp_52', text: '52. Половая дисфункция'},
+                {id: 'symp_39', text: '39. Боль в ушах'}, {id: 'symp_56', text: '56. Частая боль в животе'}, {id: 'symp_63', text: '63. Обморок'},
+                {id: 'symp_57', text: '57. Частая рвота'}, {id: 'symp_64', text: '64. Головокружение'}, {id: 'symp_71', text: '71. Сильное/нерегулярное сердцебиение'},
+                {id: 'symp_58', text: '58. Частая изжога'}, {id: 'symp_65', text: '65. Частые головные боли'}, {id: 'symp_72', text: '72. Боль в груди'},
+                {id: 'symp_59', text: '59. Кал с кровью'}, {id: 'symp_66', text: '66. Тремор'}, {id: 'symp_73', text: '73. Высокий холестерин'},
+                {id: 'symp_60', text: '60. Геморрой'}, {id: 'symp_67', text: '67. Потеря памяти'}, {id: 'symp_74', text: '74. Потение ступней'},
+                {id: 'symp_61', text: '61. Проблемы с глотанием'}, {id: 'symp_68', text: '68. Потеря координации'}, {id: 'symp_75', text: '75. Боль в ногах при ходьбе'},
+                {id: 'symp_62', text: '62. Грыжа в ЖКТ'}, {id: 'symp_69', text: '69. Трудность концентрации'}, {id: 'symp_76', text: '76. Варикозные вены'},
+                {id: 'symp_77', text: '77. Проблемы/Боль в спине'}, {id: 'symp_70', text: '70. Онемение/Покалывание'}, {id: 'symp_81', text: '81. Легко получаемые синяки'},
+                {id: 'symp_78', text: '78. Проблемы/Боль в шее'}, {id: 'symp_82', text: '82. Увеличенные гланды'}, {id: 'symp_86', text: '86. Ночная потливость'},
+                {id: 'symp_79', text: '79. Травма/Боль в суставе'}, {id: 'symp_83', text: '83. Сыпь'}, {id: 'symp_87', text: '87. Беспричинная потеря веса'},
+                {id: 'symp_80', text: '80. Туннельный синдром'}, {id: 'symp_84', text: '84. Необъяснимые шишки'}, {id: 'symp_88', text: '88. Храп'},
+                {id: 'symp_85', text: '85. Хроническая усталость'}, {id: 'symp_89', text: '89. Проблемы со сном'}, {id: 'symp_90', text: '90. Низкий уровень сахара'}
+            ];
+            
+            // --- Генерация динамических полей ---
+            const generateCheckboxes = (containerId, items) => {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                let html = '';
+                items.forEach(item => {
+                    html += `<label class="flex items-center cursor-pointer"><input type="checkbox" id="${item.id}" name="${item.id}" class="form-checkbox mr-3"><span class="flex-1 text-sm">${item.text}</span></label>`;
+                });
+                container.innerHTML = html;
+            };
+            
+            const generateLifestyleQuestions = () => {
+                const container = document.getElementById('lifestyle-questions');
+                if (!container) return;
+                const questionsHTML = `
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">91. Принимаете ли вы какие-либо лекарства по рецепту или без рецепта?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="medication" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="medication" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">92. Имели ли вы какие-либо хирургические вмешательства за последние 10 лет?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="surgery" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="surgery" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">93. У кого-нибудь в вашей семье развилась болезнь сердца в возрасте до 60 лет?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="family_heart_disease" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="family_heart_disease" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">94. Есть ли какие-либо болезни в вашей семье?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="family_illness" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="family_illness" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">95. Есть ли у вас в настоящее время простуда / кашель?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="cold_cough" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="cold_cough" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">96. Были ли вы когда-либо госпитализированы?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="hospitalized" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="hospitalized" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">97. Стоите ли вы в данный момент времени на учете у какого-либо врача?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="doctor_care" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="doctor_care" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">98. У вас были изменения в размере или цвете родинки?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="mole_change" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="mole_change" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">99. У вас были какие-либо беспокойства относительно вашего здоровья?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="health_concerns" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="health_concerns" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">100. Вы курите в настоящий момент?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="smoking_now" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="smoking_now" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                        <div class="mt-2 space-y-2 pl-6"><label for="cigarettes_per_day" class="text-sm">А. Сколько сигарет в день?</label><input type="text" id="cigarettes_per_day" name="cigarettes_per_day" class="form-input"><label for="smoking_duration_now" class="text-sm">Б. Как долго вы курите?</label><input type="text" id="smoking_duration_now" name="smoking_duration_now" class="form-input"></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">101. Вы курили когда-либо в своей жизни?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="smoked_ever" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="smoked_ever" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                        <div class="mt-2 space-y-2 pl-6"><label for="smoking_duration_past" class="text-sm">А. Сколько лет курили:</label><input type="text" id="smoking_duration_past" name="smoking_duration_past" class="form-input"><label for="cigarettes_per_day_past" class="text-sm">Б. Сколько сигарет в день?</label><input type="text" id="cigarettes_per_day_past" name="cigarettes_per_day_past" class="form-input"><label for="quit_date" class="text-sm">В. Когда вы бросили курить?</label><input type="text" id="quit_date" name="quit_date" class="form-input"></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">102. Использовали ли вы другие формы табака или никотина за последние 15 лет?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="other_tobacco" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="other_tobacco" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">103. Пьете ли вы пиво или другие слабоалкогольные напитки?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="alcohol" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="alcohol" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                        <div class="mt-2 pl-6"><label for="alcohol_amount" class="text-sm">Пью <input type="text" id="alcohol_amount" name="alcohol_amount" class="form-input inline-block w-20 mx-2"> л в неделю по <input type="text" name="alcohol_days" id="alcohol_days" class="form-input inline-block w-32 mx-2"></label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">104. Вы считаете, что у вас неудовлетворительное состояние кожи?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="skin_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="skin_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">105. Вы считаете, что у вас неудовлетворительное состояние ногтей?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="nail_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="nail_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">106. Вы считаете, что у вас неудовлетворительное состояние волос?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="hair_condition" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="hair_condition" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">107. Когда вы делали последнее исследование?</label>
+                        <div class="mt-2 space-y-2 pl-6">
+                            <div class="flex items-center gap-2 flex-wrap"><span>Холестерин:</span> <input type="date" name="cholesterol_date" id="cholesterol_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="cholesterol_result" id="cholesterol_result" class="form-input w-32"></div>
+                            <div class="flex items-center gap-2 flex-wrap"><span>Гематокрит:</span> <input type="date" name="hematocrit_date" id="hematocrit_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="hematocrit_result" id="hematocrit_result" class="form-input w-32"></div>
+                            <div class="flex items-center gap-2 flex-wrap"><span>Гемоглобин:</span> <input type="date" name="hemoglobin_date" id="hemoglobin_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="hemoglobin_result" id="hemoglobin_result" class="form-input w-32"></div>
+                            <div class="flex items-center gap-2 flex-wrap"><span>Глюкоза:</span> <input type="date" name="glucose_date" id="glucose_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="glucose_result" id="glucose_result" class="form-input w-32"></div>
+                            <div class="flex items-center gap-2 flex-wrap"><span>Инсулин:</span> <input type="date" name="insulin_date" id="insulin_date" class="form-input w-auto"> <span>Результат:</span> <input type="text" name="insulin_result" id="insulin_result" class="form-input w-32"></div>
                         </div>
-                        <div class="col-span-9">
-                            <input type="text" name="detail_text_${i}" id="detail_text_${i}" placeholder="Детали..." class="form-input p-2">
-                        </div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">108. Во время еды у вас бывают тяжесть, вздутие, изжога?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="digestion_issues" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="digestion_issues" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">109. Ваша рабочая деятельность связана с химией, шумом или пылью?</label>
+                        <div class="flex space-x-4"><label class="flex items-center"><input type="radio" name="work_hazards" value="Да" class="form-radio mr-2"> Да</label><label class="flex items-center"><input type="radio" name="work_hazards" value="Нет" class="form-radio mr-2"> Нет</label></div>
+                    </div>
+                    <div class="question-group">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">110. Ваш текущий рацион характеризуется как:</label>
+                        <div class="flex flex-wrap gap-4"><label class="flex items-center"><input type="radio" name="diet_type" value="Низкожировой" class="form-radio mr-2"> Низкожировой</label><label class="flex items-center"><input type="radio" name="diet_type" value="Низкоуглеводный" class="form-radio mr-2"> Низкоуглеводный</label><label class="flex items-center"><input type="radio" name="diet_type" value="Высокобелковый" class="form-radio mr-2"> Высокобелковый</label><label class="flex items-center"><input type="radio" name="diet_type" value="Вегетарианский" class="form-radio mr-2"> Вегетарианский</label><label class="flex items-center"><input type="radio" name="diet_type" value="Нет специфики" class="form-radio mr-2"> Нет специфики</label></div>
                     </div>
                 `;
+                container.innerHTML = questionsHTML;
             }
-            container.innerHTML = html;
-        }
-
-        // --- Сохранение и загрузка ---
-        function saveState() {
-            const state = {};
-            allInputs().forEach(input => {
-                const key = input.id || (input.name + input.value);
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    if (input.name && !input.id) { // Для радиокнопок
-                         if(input.checked) state[input.name] = input.value;
-                    } else {
-                         state[key] = input.checked;
-                    }
-                } else {
-                    state[input.id] = input.value;
+            
+            function generateDetailsFields() {
+                const container = document.getElementById('details-container');
+                let html = '<label class="block text-sm font-medium text-gray-300 mb-2">Детализация ответов "Да":</label>';
+                for(let i = 1; i <= 10; i++) {
+                    html += `
+                        <div class="grid grid-cols-12 gap-2 items-center">
+                            <div class="col-span-3">
+                                <input type="number" name="detail_q_${i}" id="detail_q_${i}" min="1" max="110" placeholder="№" class="form-input p-2 text-center">
+                            </div>
+                            <div class="col-span-9">
+                                <input type="text" name="detail_text_${i}" id="detail_text_${i}" placeholder="Детали..." class="form-input p-2">
+                            </div>
+                        </div>
+                    `;
                 }
-            });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        }
-
-        function loadState() {
-            const savedState = localStorage.getItem(STORAGE_KEY);
-            if (savedState) {
-                const state = JSON.parse(savedState);
+                container.innerHTML = html;
+            }
+    
+            // --- Сохранение и загрузка ---
+            function saveState() {
+                const state = {};
                 allInputs().forEach(input => {
                     const key = input.id || (input.name + input.value);
-                    if (state[key] !== undefined) {
-                        if (input.type === 'checkbox') {
-                            input.checked = state[key];
-                        } else if (input.type === 'radio') {
-                             if(state[input.name] === input.value) {
-                                input.checked = true;
-                            }
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        if (input.name && !input.id) { // Для радиокнопок
+                             if(input.checked) state[input.name] = input.value;
                         } else {
-                            input.value = state[key];
+                             state[key] = input.checked;
                         }
-                    } else if (input.type === 'radio' && state[input.name] !== undefined) { // Загрузка состояния радиокнопок
-                        input.checked = (state[input.name] === input.value);
+                    } else {
+                        state[input.id] = input.value;
                     }
                 });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             }
-        }
-        
-        // --- Логика копирования (ИСПРАВЛЕНО) ---
-        copyButton.addEventListener('click', () => {
-            let reportText = "📝 Анкета медицинской истории\n\n";
-
-            const getInputValue = id => document.getElementById(id).value.trim();
-            const getRadioValue = name => {
-                const checkedRadio = form.querySelector(`input[name="${name}"]:checked`);
-                return checkedRadio ? checkedRadio.value : "Нет ответа";
-            };
-
-            // Блок 1: Общая информация
-            reportText += "👤 ОБЩАЯ ИНФОРМАЦИЯ\n";
-            reportText += `   ФИО: ${getInputValue('fullName') || 'Не указано'}\n`;
-            reportText += `   Дата: ${getInputValue('date') || 'Не указана'}\n\n`;
-
-            // Блок 2: Персональная медицинская история
-            const checkedConditions = conditions
-                .filter(c => document.getElementById(c.id).checked)
-                .map(c => `   - ${c.text}`);
-            if (checkedConditions.length > 0) {
-                reportText += '🩺 ПЕРСОНАЛЬНАЯ МЕДИЦИНСКАЯ ИСТОРИЯ (Отмечено "Да")\n';
-                reportText += checkedConditions.join('\n') + '\n\n';
-            }
-
-            // Блок 3: Обзор симптомов
-            const checkedSymptoms = symptoms
-                .filter(s => document.getElementById(s.id).checked)
-                .map(s => `   - ${s.text}`);
-            if (checkedSymptoms.length > 0) {
-                reportText += '🌡️ ОБЗОР СИМПТОМОВ (Отмечено "Да")\n';
-                reportText += checkedSymptoms.join('\n') + '\n\n';
-            }
-
-            // Блок 4: Дополнительные вопросы
-            reportText += "🧬 ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ О ЗДОРОВЬЕ И СТИЛЕ ЖИЗНИ\n";
-            reportText += `91. Принимаете лекарства: ${getRadioValue('medication')}\n`;
-            reportText += `92. Хирургические вмешательства за последние 10 лет: ${getRadioValue('surgery')}\n`;
-            reportText += `93. Болезнь сердца в семье (до 60 лет): ${getRadioValue('family_heart_disease')}\n`;
-            reportText += `94. Болезни в семье: ${getRadioValue('family_illness')}\n`;
-            reportText += `95. Простуда/кашель в настоящее время: ${getRadioValue('cold_cough')}\n`;
-            reportText += `96. Были госпитализированы: ${getRadioValue('hospitalized')}\n`;
-            reportText += `97. На учете у врача: ${getRadioValue('doctor_care')}\n`;
-            reportText += `98. Изменения в родинках: ${getRadioValue('mole_change')}\n`;
-            reportText += `99. Беспокойства о здоровье: ${getRadioValue('health_concerns')}\n`;
-            
-            const smokingNow = getRadioValue('smoking_now');
-            reportText += `100. Курите в настоящий момент: ${smokingNow}`;
-            if (smokingNow === 'Да') {
-                reportText += ` (Сигарет в день: ${getInputValue('cigarettes_per_day') || 'не указ.'}, Стаж: ${getInputValue('smoking_duration_now') || 'не указ.'})\n`;
-            } else { reportText += '\n'; }
-            
-            const smokedEver = getRadioValue('smoked_ever');
-            reportText += `101. Курили когда-либо в жизни: ${smokedEver}`;
-            if (smokedEver === 'Да') {
-                reportText += ` (Стаж: ${getInputValue('smoking_duration_past') || 'не указ.'}, Сигарет/день: ${getInputValue('cigarettes_per_day_past') || 'не указ.'}, Бросили: ${getInputValue('quit_date') || 'не указ.'})\n`;
-            } else { reportText += '\n'; }
-            
-            reportText += `102. Другие формы табака/никотина за 15 лет: ${getRadioValue('other_tobacco')}\n`;
-            
-            const drinksAlcohol = getRadioValue('alcohol');
-            reportText += `103. Употребляете алкоголь: ${drinksAlcohol}`;
-            if (drinksAlcohol === 'Да') {
-                reportText += ` (Кол-во: ${getInputValue('alcohol_amount') || 'не указ.'} л/нед., Дни: ${getInputValue('alcohol_days') || 'не указ.'})\n`;
-            } else { reportText += '\n'; }
-            
-            reportText += `104. Состояние кожи: ${getRadioValue('skin_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
-            reportText += `105. Состояние ногтей: ${getRadioValue('nail_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
-            reportText += `106. Состояние волос: ${getRadioValue('hair_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
-            
-            reportText += "107. Последние исследования:\n";
-            reportText += `    - Холестерин: ${getInputValue('cholesterol_date') || 'нет данных'}, Результат: ${getInputValue('cholesterol_result') || 'нет данных'}\n`;
-            reportText += `    - Гематокрит: ${getInputValue('hematocrit_date') || 'нет данных'}, Результат: ${getInputValue('hematocrit_result') || 'нет данных'}\n`;
-            reportText += `    - Гемоглобин: ${getInputValue('hemoglobin_date') || 'нет данных'}, Результат: ${getInputValue('hemoglobin_result') || 'нет данных'}\n`;
-            reportText += `    - Глюкоза: ${getInputValue('glucose_date') || 'нет данных'}, Результат: ${getInputValue('glucose_result') || 'нет данных'}\n`;
-            reportText += `    - Инсулин: ${getInputValue('insulin_date') || 'нет данных'}, Результат: ${getInputValue('insulin_result') || 'нет данных'}\n`;
-            
-            reportText += `108. Проблемы с пищеварением (тяжесть, вздутие): ${getRadioValue('digestion_issues')}\n`;
-            reportText += `109. Работа связана с хим./шумом/пылью: ${getRadioValue('work_hazards')}\n`;
-            reportText += `110. Характер рациона: ${getRadioValue('diet_type')}\n\n`;
-
-            // Блок 5: Пояснения
-            reportText += "🔍 ПОЯСНЕНИЯ К ОТВЕТАМ «ДА»\n";
-            let detailsAdded = false;
-            for(let i = 1; i <= 10; i++) {
-                const qNum = getInputValue(`detail_q_${i}`);
-                const qText = getInputValue(`detail_text_${i}`);
-                if (qNum && qText) {
-                    reportText += `   - Вопрос №${qNum}: ${qText}\n`;
-                    detailsAdded = true;
+    
+            function loadState() {
+                const savedState = localStorage.getItem(STORAGE_KEY);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    allInputs().forEach(input => {
+                        const key = input.id || (input.name + input.value);
+                        if (state[key] !== undefined) {
+                            if (input.type === 'checkbox') {
+                                input.checked = state[key];
+                            } else if (input.type === 'radio') {
+                                 if(state[input.name] === input.value) {
+                                    input.checked = true;
+                                }
+                            } else {
+                                input.value = state[key];
+                            }
+                        } else if (input.type === 'radio' && state[input.name] !== undefined) { // Загрузка состояния радиокнопок
+                            input.checked = (state[input.name] === input.value);
+                        }
+                    });
                 }
             }
-            const extraExplanations = getInputValue('explanations_extra');
-            if (extraExplanations) {
-                reportText += `\n   Дополнительные пояснения:\n   ${extraExplanations}\n`;
-                detailsAdded = true;
-            }
-            if (!detailsAdded) {
-                reportText += "   (Пояснений не добавлено)\n";
+            
+            // --- Логика копирования (ИСПРАВЛЕНО) ---
+            copyButton.addEventListener('click', () => {
+                let reportText = "📝 Анкета медицинской истории\n\n";
+    
+                const getInputValue = id => document.getElementById(id).value.trim();
+                const getRadioValue = name => {
+                    const checkedRadio = form.querySelector(`input[name="${name}"]:checked`);
+                    return checkedRadio ? checkedRadio.value : "Нет ответа";
+                };
+    
+                // Блок 1: Общая информация
+                reportText += "👤 ОБЩАЯ ИНФОРМАЦИЯ\n";
+                reportText += `   ФИО: ${getInputValue('fullName') || 'Не указано'}\n`;
+                reportText += `   Дата: ${getInputValue('date') || 'Не указана'}\n\n`;
+    
+                // Блок 2: Персональная медицинская история
+                const checkedConditions = conditions
+                    .filter(c => document.getElementById(c.id).checked)
+                    .map(c => `   - ${c.text}`);
+                if (checkedConditions.length > 0) {
+                    reportText += '🩺 ПЕРСОНАЛЬНАЯ МЕДИЦИНСКАЯ ИСТОРИЯ (Отмечено "Да")\n';
+                    reportText += checkedConditions.join('\n') + '\n\n';
+                }
+    
+                // Блок 3: Обзор симптомов
+                const checkedSymptoms = symptoms
+                    .filter(s => document.getElementById(s.id).checked)
+                    .map(s => `   - ${s.text}`);
+                if (checkedSymptoms.length > 0) {
+                    reportText += '🌡️ ОБЗОР СИМПТОМОВ (Отмечено "Да")\n';
+                    reportText += checkedSymptoms.join('\n') + '\n\n';
+                }
+    
+                // Блок 4: Дополнительные вопросы
+                reportText += "🧬 ДОПОЛНИТЕЛЬНЫЕ ВОПРОСЫ О ЗДОРОВЬЕ И СТИЛЕ ЖИЗНИ\n";
+                reportText += `91. Принимаете лекарства: ${getRadioValue('medication')}\n`;
+                reportText += `92. Хирургические вмешательства за последние 10 лет: ${getRadioValue('surgery')}\n`;
+                reportText += `93. Болезнь сердца в семье (до 60 лет): ${getRadioValue('family_heart_disease')}\n`;
+                reportText += `94. Болезни в семье: ${getRadioValue('family_illness')}\n`;
+                reportText += `95. Простуда/кашель в настоящее время: ${getRadioValue('cold_cough')}\n`;
+                reportText += `96. Были госпитализированы: ${getRadioValue('hospitalized')}\n`;
+                reportText += `97. На учете у врача: ${getRadioValue('doctor_care')}\n`;
+                reportText += `98. Изменения в родинках: ${getRadioValue('mole_change')}\n`;
+                reportText += `99. Беспокойства о здоровье: ${getRadioValue('health_concerns')}\n`;
+                
+                const smokingNow = getRadioValue('smoking_now');
+                reportText += `100. Курите в настоящий момент: ${smokingNow}`;
+                if (smokingNow === 'Да') {
+                    reportText += ` (Сигарет в день: ${getInputValue('cigarettes_per_day') || 'не указ.'}, Стаж: ${getInputValue('smoking_duration_now') || 'не указ.'})\n`;
+                } else { reportText += '\n'; }
+                
+                const smokedEver = getRadioValue('smoked_ever');
+                reportText += `101. Курили когда-либо в жизни: ${smokedEver}`;
+                if (smokedEver === 'Да') {
+                    reportText += ` (Стаж: ${getInputValue('smoking_duration_past') || 'не указ.'}, Сигарет/день: ${getInputValue('cigarettes_per_day_past') || 'не указ.'}, Бросили: ${getInputValue('quit_date') || 'не указ.'})\n`;
+                } else { reportText += '\n'; }
+                
+                reportText += `102. Другие формы табака/никотина за 15 лет: ${getRadioValue('other_tobacco')}\n`;
+                
+                const drinksAlcohol = getRadioValue('alcohol');
+                reportText += `103. Употребляете алкоголь: ${drinksAlcohol}`;
+                if (drinksAlcohol === 'Да') {
+                    reportText += ` (Кол-во: ${getInputValue('alcohol_amount') || 'не указ.'} л/нед., Дни: ${getInputValue('alcohol_days') || 'не указ.'})\n`;
+                } else { reportText += '\n'; }
+                
+                reportText += `104. Состояние кожи: ${getRadioValue('skin_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
+                reportText += `105. Состояние ногтей: ${getRadioValue('nail_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
+                reportText += `106. Состояние волос: ${getRadioValue('hair_condition') === 'Да' ? 'Неудовлетворительное' : 'Удовлетворительное'}\n`;
+                
+                reportText += "107. Последние исследования:\n";
+                reportText += `    - Холестерин: ${getInputValue('cholesterol_date') || 'нет данных'}, Результат: ${getInputValue('cholesterol_result') || 'нет данных'}\n`;
+                reportText += `    - Гематокрит: ${getInputValue('hematocrit_date') || 'нет данных'}, Результат: ${getInputValue('hematocrit_result') || 'нет данных'}\n`;
+                reportText += `    - Гемоглобин: ${getInputValue('hemoglobin_date') || 'нет данных'}, Результат: ${getInputValue('hemoglobin_result') || 'нет данных'}\n`;
+                reportText += `    - Глюкоза: ${getInputValue('glucose_date') || 'нет данных'}, Результат: ${getInputValue('glucose_result') || 'нет данных'}\n`;
+                reportText += `    - Инсулин: ${getInputValue('insulin_date') || 'нет данных'}, Результат: ${getInputValue('insulin_result') || 'нет данных'}\n`;
+                
+                reportText += `108. Проблемы с пищеварением (тяжесть, вздутие): ${getRadioValue('digestion_issues')}\n`;
+                reportText += `109. Работа связана с хим./шумом/пылью: ${getRadioValue('work_hazards')}\n`;
+                reportText += `110. Характер рациона: ${getRadioValue('diet_type')}\n\n`;
+    
+                // Блок 5: Пояснения
+                reportText += "🔍 ПОЯСНЕНИЯ К ОТВЕТАМ «ДА»\n";
+                let detailsAdded = false;
+                for(let i = 1; i <= 10; i++) {
+                    const qNum = getInputValue(`detail_q_${i}`);
+                    const qText = getInputValue(`detail_text_${i}`);
+                    if (qNum && qText) {
+                        reportText += `   - Вопрос №${qNum}: ${qText}\n`;
+                        detailsAdded = true;
+                    }
+                }
+                const extraExplanations = getInputValue('explanations_extra');
+                if (extraExplanations) {
+                    reportText += `\n   Дополнительные пояснения:\n   ${extraExplanations}\n`;
+                    detailsAdded = true;
+                }
+                if (!detailsAdded) {
+                    reportText += "   (Пояснений не добавлено)\n";
+                }
+                
+                // Вывод результата и копирование
+                copyContainer.classList.remove('hidden');
+                reportOutput.value = reportText;
+                reportOutput.select();
+                reportOutput.setSelectionRange(0, 99999); // Для мобильных устройств
+    
+                // Попытка автоматического копирования
+                try {
+                    document.execCommand('copy');
+                    copyButton.textContent = '✅ Скопировано!';
+                } catch (err) {
+                    copyButton.textContent = '✅ Нажмите Ctrl+C для копирования';
+                }
+    
+                setTimeout(() => {
+                    copyButton.textContent = 'Сформировать и скопировать ответы';
+                }, 3000);
+            });
+    
+            // --- Инициализация ---
+            allInputs().forEach(input => {
+                input.addEventListener('change', saveState);
+                input.addEventListener('input', saveState);
+            });
+    
+            generateCheckboxes('conditions-grid', conditions);
+            generateCheckboxes('symptoms-grid', symptoms);
+            generateLifestyleQuestions();
+            generateDetailsFields();
+            
+            // Устанавливаем текущую дату, если поле пустое
+            if (!document.getElementById('date').value) {
+                document.getElementById('date').valueAsDate = new Date();
             }
             
-            // Вывод результата и копирование
-            copyContainer.classList.remove('hidden');
-            reportOutput.value = reportText;
-            reportOutput.select();
-            reportOutput.setSelectionRange(0, 99999); // Для мобильных устройств
-
-            // Попытка автоматического копирования
-            try {
-                document.execCommand('copy');
-                copyButton.textContent = '✅ Скопировано!';
-            } catch (err) {
-                copyButton.textContent = '✅ Нажмите Ctrl+C для копирования';
-            }
-
-            setTimeout(() => {
-                copyButton.textContent = 'Сформировать и скопировать ответы';
-            }, 3000);
+            loadState();
         });
-
-        // --- Инициализация ---
-        allInputs().forEach(input => {
-            input.addEventListener('change', saveState);
-            input.addEventListener('input', saveState);
-        });
-
-        generateCheckboxes('conditions-grid', conditions);
-        generateCheckboxes('symptoms-grid', symptoms);
-        generateLifestyleQuestions();
-        generateDetailsFields();
-        
-        // Устанавливаем текущую дату, если поле пустое
-        if (!document.getElementById('date').value) {
-            document.getElementById('date').valueAsDate = new Date();
-        }
-        
-        loadState();
-    });
-</script>
+    </script>
+</body>
+</html>
